@@ -3,128 +3,318 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Platypi:ital,wght@0,300..800;1,300..800&display=swap"
-      rel="stylesheet"
-    />
-    <title>Flower Map</title>
+    <title>Name Flowers</title>
     <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
       body {
-        background-image: url("images/background.jpg");
-        background-position: center;
-        background-size: cover;
-        background-repeat: repeat;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+        background-color: #f4f4f4; /* Fallback color */
+        font-family: Arial, sans-serif;
+        position: relative;
       }
-      button {
-        display: block;
-        padding: 10px;
-        margin: 0 auto;
-        margin-bottom: 16px;
-        font-size: 16px;
-      }
-      .flower-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-        row-gap: 110px;
-        max-width: 1000px;
-        margin: auto;
-      }
-      .flower-item {
+
+      #container {
+        background-image: url("images/background.jpg"); /* Path to your background image */
+        background-position: center; /* Center the background image */
+        background-size: cover; /* Cover the entire viewport */
+        position: relative;
+        text-align: center;
+        height: 100%;
         width: 100%;
-        height: auto;
+        overflow: hidden;
       }
-      .placeholder {
-        width: 100%; /* Match the width of the flowers for consistency */
-        height: 0; /* Or adjust as needed to match your layout */
-        visibility: hidden; /* Hide the placeholder but keep it in the flow */
-      }
-      .flower-container {
+      #imageStack {
         position: relative;
         width: 100%;
-        height: 100%;
+        height: 60vh;
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
+        margin-top: 10vh; /* Adjust as needed */
+      }
+      img {
+        position: absolute; /* Makes images responsive within their container */
+        height: 70%;
+      }
+      input[type="text"],
+      button {
+        display: block;
+        padding: 10px;
+        margin-top: 16px;
+        font-size: 16px;
+        justify-content: center;
+      }
+      input[type="text"] {
+        width: 70%; /* Responsive width */
+        max-width: 300px; /* Maximum width */
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        padding: 4px;
+        color: #000000a0;
+        font-style: italic;
+        font-weight: bold;
       }
 
-      .flower-item {
-        width: 100%; /* Adjust size as necessary */
+      input[type="file"],
+      input[type="number"] {
+        display: block;
+        margin-top: 18px;
+        font-size: 16px;
+        justify-content: center;
+      }
+
+      #controls {
+        display: block;
+        text-align: center;
+      }
+      #controls.hide {
+        display: none;
+      }
+      #logo {
+        display: block;
+        position: relative;
+        margin: 0 auto;
+        max-width: 300px;
         height: auto;
-        position: absolute;
-        top: 0;
-        left: 0;
+        margin-bottom: 10px;
       }
-
-      .flower-label {
+      #editcontrols > button {
+        display: inline;
+        position: relative;
+        z-index: 5;
+      }
+      #blur {
         position: absolute;
-        /* bottom: 150%; */
-        left: 50%;
-        color: white;
-        font-size: 36px;
-        font-family: "Platypi", serif;
-        z-index: 10;
-        text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.8);
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        backdrop-filter: blur(1.2px) brightness(95%);
       }
     </style>
   </head>
-  <body>
-    <button onclick="backToHome()"><bold>! TRY IT OUT !</bold></button>
-    <div class="flower-grid" id="flowerGrid">
-      <!-- Images will be inserted dynamically here -->
+  <body id="body">
+    <div id="container">
+      <div id="blur"></div>
+      <div id="controls">
+        <div style="display: flex; flex-direction: column; align-items: center">
+          <img id="logo" src="images/generator-logo.png" alt="Logo" />
+          <input
+            type="text"
+            id="nameInput"
+            placeholder="Enter nama seseorang"
+            autocomplete="off"
+            spellcheck="false"
+            oninput="toggleButton()"
+          />
+          <input type="file" id="backgroundInput" accept="image/*" />
+          <label for="backgroundInput">Upload a custom background (optional):</label>
+          <label for="bowSelect">Pilih Bow:</label>
+          <select id="bowSelect">
+            <option value="images/bow.png">Bow 1</option>
+            <option value="images/bow1.png">Bow 2</option>
+            <option value="images/style2/bow.png">Bow 3</option>
+            <!-- Tambahkan opsi bow lainnya di sini -->
+          </select>
+          <input type="file" id="bowInput" accept="image/*" />
+          <label for="bowInput">Upload a custom bow (optional):</label>
+          <label for="bowHeightInput">Atur Posisi Bow (% dari bawah):</label>
+          <input type="number" id="bowHeightInput" min="0" max="100" value="0" />
+          <button id="generateButton" onclick="displayImages()" disabled>
+            Generate Bunga
+          </button>
+          <button onclick="redirectToFlowerMap()">List Alphabet Bunga</button>
+        </div>
+      </div>
+      <div id="editcontrols" style="display: none">
+        <button onclick="reloadPage()">Buat Ulang</button>
+        <button id="downloadBtn" onclick="captureScreen()">Download Gambar</button>
+        <button id="rearrange" onclick="randomizeFlowerOrder()">Atur Bunga</button>
+      </div>
+      <div id="imageStack"></div>
     </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const flowerGrid = document.getElementById("flowerGrid");
-        for (let i = 0; i < 26; i++) {
-          const char = String.fromCharCode(97 + i); // ASCII to char (97 is 'a')
+      function displayImages() {
+        const name = document.getElementById("nameInput").value.toLowerCase();
+        const imageStack = document.getElementById("imageStack");
+        const backgroundImage = document.getElementById("container");
+        const controls = document.getElementById("controls");
+        const blur = document.getElementById("blur");
+        imageStack.innerHTML = ""; // Clear previous images
 
-          if (i === 24) {
-            addBlankDivs(flowerGrid, 1); // Function to add blank divs as placeholders
-          }
+        const backgroundInput = document.getElementById("backgroundInput");
+        if (backgroundInput.files && backgroundInput.files[0]) {
+          const reader = new FileReader();
 
-          // Create a container for each flower and its label
-          const flowerContainer = document.createElement("div");
-          flowerContainer.classList.add("flower-container");
+          reader.onload = function (e) {
+            // Set the loaded image as the background of the backgroundImage
+            backgroundImage.style.backgroundImage = `url(${e.target.result})`;
+            backgroundImage.style.backgroundSize = "cover";
+            backgroundImage.style.backgroundPosition = "center";
+            backgroundImage.style.backgroundRepeat = "no-repeat";
+          };
 
-          // Create the image element for the flower
-          const img = document.createElement("img");
-          img.src = `images/style2/${char}.png`;
-          img.classList.add("flower-item");
-          img.alt = `Flower ${char.toUpperCase()}`;
-
-          const randomRotation = Math.floor(Math.random() * 13) - 7;
-          img.style.transform = `translateX(-10%) rotate(${randomRotation}deg)`;
-
-          // Create a label for the flower
-          const label = document.createElement("span");
-          label.textContent = char.toUpperCase(); // Display the letter
-          label.classList.add("flower-label");
-          label.style.transform = `translate(10%, 150%) rotate(${-randomRotation}deg)`;
-
-          // Append the image and label to the container
-          flowerContainer.appendChild(img);
-          flowerContainer.appendChild(label);
-
-          // Append the container to the grid
-          flowerGrid.appendChild(flowerContainer);
+          blur.style.zIndex = 0;
+          reader.readAsDataURL(backgroundInput.files[0]);
         }
-      });
 
-      function addBlankDivs(grid, count) {
-        // Add two blank divs as placeholders to adjust alignment
-        for (let j = 0; j < count; j++) {
-          const placeholder = document.createElement("div");
-          placeholder.classList.add("placeholder");
-          grid.appendChild(placeholder);
+        const usedIndices = new Set(); // To keep track of used z-index values
+        const letterCounts = {}; // To track occurrences of each letter
+        let validImages = name.length; // To count valid images
+
+        const maxAngle = validImages * 3; // Maximum angle on one side for rotation
+        const angleIncrement = (maxAngle * 2) / (validImages - 1 || 1); // Calculate angle increment
+        let currentAngle = -maxAngle; // Start from the negative maximum angle
+
+        const maxSpacing = 2; // Maximum spacing percentage on one side
+        const spacingIncrement = (maxSpacing * 2) / (validImages - 1 || 1); // Calculate spacing increment
+        let currentPosition = -maxSpacing; // Start from the negative maximum spacing
+
+        const maxYOffset = validImages / 2; // Max vertical offset in percentage
+        // Function to calculate vertical offset based on current horizontal position
+        function calculateVerticalOffset(position) {
+          // Normalize position to range [-1, 1]
+          const x = (2 * (position + maxSpacing)) / (2 * maxSpacing) - 1;
+          // Parabolic curve: y = -a*x^2 + k, where a = maxYOffset and k = maxYOffset
+          return -maxYOffset * x * x + maxYOffset;
+        }
+
+        // Reset for actual image processing
+        for (let char in letterCounts) {
+          letterCounts[char] = 0;
+        }
+
+        // Second pass to position and create images
+        for (let char of name) {
+          if (char >= "a" && char <= "z") {
+            letterCounts[char]++;
+
+            const img = document.createElement("img");
+            img.src = "images/style2/" + char + ".png"; // Ensure path is correct
+            img.className = "flower"; // Assign class for identification
+
+            let zIndex;
+            do {
+              zIndex = Math.floor(Math.random() * 100); // Random z-index from 0 to 99
+            } while (usedIndices.has(zIndex));
+            usedIndices.add(zIndex);
+
+            img.style.zIndex = zIndex;
+            img.style.transform += `translateX(-50%) rotate(${currentAngle}deg)`;
+            img.style.transformOrigin = "bottom center"; // Set the rotation origin at the bottom center
+            img.style.left = `calc(50% + ${currentPosition}vw)`; // Calculate left position with spacing
+            img.style.bottom = `${calculateVerticalOffset(currentPosition) + 20}%`; // Adjust vertical position
+
+            currentAngle += angleIncrement; // Increment the angle for the next image
+            currentPosition += spacingIncrement; // Increment the position for the next image
+
+            imageStack.appendChild(img);
+          }
+        }
+
+        const bowInput = document.getElementById("bowInput");
+        const bowSelect = document.getElementById("bowSelect");
+        const bowHeightInput = document.getElementById("bowHeightInput");
+
+        const bowHeight = bowHeightInput.value || 0; // Get the bow height value
+
+        if (bowInput.files && bowInput.files[0]) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            // Create a bow image at the base
+            const bow = document.createElement("img");
+            bow.src = e.target.result; // Use the uploaded bow image
+            bow.className = "bow"; // Differentiate the bow
+
+            bow.style.position = "absolute";
+            bow.style.bottom = `${bowHeight}%`; // Set the height based on the input value
+            bow.style.left = "50%"; // Center horizontally
+            bow.style.transform = "translate(-50%, 0%)"; // Adjust for center alignment
+            bow.style.zIndex = "200"; // Ensure the bow is on top of the flowers if needed
+            imageStack.appendChild(bow);
+          };
+          reader.readAsDataURL(bowInput.files[0]);
+        } else if (bowSelect.value) {
+          // Add the selected bow image at the base
+          const bow = document.createElement("img");
+          bow.src = bowSelect.value; // Use the selected bow image
+          bow.className = "bow"; // Differentiate the bow
+
+          bow.style.position = "absolute";
+          bow.style.bottom = `${bowHeight}%`; // Set the height based on the input value
+          bow.style.left = "50%"; // Center horizontally
+          bow.style.transform = "translate(-50%, 0%)"; // Adjust for center alignment
+          bow.style.zIndex = "200"; // Ensure the bow is on top of the flowers if needed
+          imageStack.appendChild(bow);
+        }
+
+        controls.classList.add("hide"); // Hide the controls after displaying images
+
+        // Show the download button
+        document.getElementById("editcontrols").style.display = "block";
+      }
+
+      function captureScreen() {
+        document.getElementById("imageStack").style.marginTop = "60vw";
+        document.getElementById("editcontrols").style.display = "none";
+        setTimeout(() => {
+          html2canvas(document.getElementById("container")).then((canvas) => {
+            const name = document.getElementById("nameInput").value.toLowerCase();
+            // Create an image
+            const image = canvas.toDataURL("image/png", 1.0); // 1.0 indicates image quality
+
+            // Create a link to download the image
+            const link = document.createElement("a");
+            link.download = name + "-flower-bouquet.png"; // Set the filename for the download
+            link.href = image; // Link to the image data
+            link.click(); // Simulate a click to download
+          });
+        }, 500);
+        setTimeout(() => {
+          document.getElementById("imageStack").style.marginTop = "45vw";
+          document.getElementById("editcontrols").style.display = "block";
+        }, 1000);
+      }
+
+      function randomizeFlowerOrder() {
+        const flowers = document
+          .getElementById("imageStack")
+          .getElementsByClassName("flower");
+        const maxZIndex = flowers.length;
+
+        for (let flower of flowers) {
+          // Generate a random z-index for each flower
+          const randomZIndex = Math.floor(Math.random() * maxZIndex);
+          flower.style.zIndex = randomZIndex;
         }
       }
 
-      function backToHome() {
-        window.history.back();
+      function reloadPage() {
+        window.location.reload(true);
+      }
+
+      function redirectToFlowerMap() {
+        window.location.href =
+          "flower-map.html"
+      }
+
+      function toggleButton() {
+        const input = document.getElementById("nameInput");
+        const button = document.getElementById("generateButton");
+        button.disabled = !input.value.trim(); // Disable button if input is empty or only whitespace
       }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.3/html2canvas.min.js"></script>
   </body>
 </html>
